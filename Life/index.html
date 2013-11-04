@@ -1,0 +1,160 @@
+<html>
+<head>
+	<title>Game of Life</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="metro.js"></script>
+	<style type="text/css">
+	html{
+
+		background:#ccc;
+	}
+.cell{
+
+	width:100px;
+	height: 100px;
+}
+.dead{
+background: white;
+}
+.alive{
+background:red;
+}
+
+	</style>
+</head>
+<body>
+
+<div id="container">
+
+<table id="grid">
+	<tr>
+		<td><div class="cell dead"></div></td>
+		<td><div class="cell dead"></div></td>
+		<td><div class="cell dead"></div></td>
+	</tr>
+	<tr>
+		<td><div class="cell dead"></div></td>
+		<td><div class="cell dead"></div></td>
+		<td><div class="cell dead"></div></td>
+	</tr>
+	<tr>
+		<td><div class="cell dead"></div></td>
+		<td><div class="cell dead"></div></td>
+		<td><div class="cell dead"></div></td>
+	</tr>
+</table>
+
+<input type="textbox" id="gridWidth"/><span>x</span><input type="textbox" id="gridHeight"/> <button id="gridCreate">Make Grid</button>
+
+<button id="startBtn">Start</button>
+<button id="stopBtn">Stop</button>
+
+</div>
+
+
+<script type="text/javascript">
+
+	$.metronome.start(10);
+
+	$('#startBtn').click(function(){
+		
+		$(document).bind('tick', function(){
+			checkState();
+
+			$('.cell').each(function(){
+
+				if($(this).hasClass('next-alive')){
+
+					$(this).removeClass('dead').addClass('alive').removeClass('next-alive');
+
+				}else if($(this).hasClass('next-dead')){
+
+					$(this).removeClass('alive').addClass('dead').removeClass('next-dead');
+
+				}
+
+			});
+
+		});
+	});
+
+	$('stopBtn').click(function(){
+		$.metronome.stop();
+	});
+	
+	$('#gridCreate').click(function(){
+
+		var gridWidth = $('#gridWidth').val();
+		var gridHeight = $('#gridHeight').val();
+
+		function repeat(fn, times) {
+    		for(var i = 0; i < times; i++) fn();
+		}
+
+		$('#grid').html('');
+		repeat(createHeight, gridHeight);
+		repeat(createWidth, gridWidth);
+
+
+		function createHeight(){
+			$('#grid').append('<tr></tr>');
+		};
+
+		function createWidth(){
+			$('#grid tr').append('<td><div class="cell dead"></div></td>');
+		};
+
+
+
+	});
+
+	$( '#container' ).on( 'click', '.cell', function () {
+
+	
+	if($(this).hasClass('dead')){
+				$(this).removeClass('dead').addClass('alive');
+			}else{
+
+				$(this).removeClass('alive').addClass('dead');
+			}
+	});
+
+	function checkState(){
+		$('.cell').each(function(){	
+		var homeCellTop = $(this).offset().top;
+		var homeCellLeft = $(this).offset().left;
+		var living = 0;
+
+		$('.cell').each(function(){
+
+
+			var awayCellTop = $(this).offset().top;
+			var awayCellLeft = $(this).offset().left;
+
+			var cellDistanceTop = Math.abs(homeCellTop - awayCellTop);
+			var cellDistanceLeft = Math.abs(homeCellLeft - awayCellLeft);
+
+			if(cellDistanceLeft == 104 && cellDistanceTop == 104 || cellDistanceLeft == 0 && cellDistanceTop == 104 || cellDistanceLeft == 104 && cellDistanceTop == 0){
+			
+				if($(this).hasClass('alive')){
+					living++;
+				}
+			}
+		});
+		
+		if($(this).hasClass('alive') && living > 3 || living < 2){
+
+			$(this).addClass('next-dead');
+		
+		}else if($(this).hasClass('dead') && living == 3){
+
+			$(this).addClass('next-alive');
+		}
+
+		});	
+
+	};
+
+	</script>
+</body>
+</html>
